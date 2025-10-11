@@ -1,102 +1,123 @@
-import Image from "next/image";
+import Link from "next/link";
+import Header from "../components/Header";
+import { headers } from 'next/headers';
 
-export default function Home() {
+/**
+ * 获取最新发布的文章
+ * @returns {Promise<Object>} 包含文章列表的对象
+ */
+async function getRecentPosts() {
+  try {
+    // 服务端组件需要使用完整URL
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+
+    // 生产环境需要加上basePath
+    const basePath = process.env.NODE_ENV === 'production' ? '/blog' : '';
+    const baseUrl = `${protocol}://${host}${basePath}`;
+
+    const res = await fetch(`${baseUrl}/api/posts?published=true&limit=6`, {
+      cache: 'no-store'
+    });
+
+    if (!res.ok) return { posts: [] };
+    return await res.json();
+  } catch (error) {
+    console.error('获取文章失败:', error);
+    return { posts: [] };
+  }
+}
+
+
+/**
+ * 首页组件
+ * 展示网站介绍、最新文章和分类导航
+ * 使用Server Components在服务端获取数据，提供更好的SEO支持
+ */
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  // 获取最新文章数据
+  const { posts } = await getRecentPosts();
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+      {/* Main Content */}
+      <main className="flex-1 pt-24">
+        {/* Hero Section */}
+        <section className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          欢迎来到甜宝塔的博客
+        </h1>
+        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          分享技术见解、生活感悟和学习心得的个人空间
+        </p>
+        <Link 
+          href="/blog"
+          className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          开始阅读
+        </Link>
+      </section>
+
+      {/* Recent Posts */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold mb-8">最新文章</h2>
+        {posts.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <article key={post.id} className="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <h3 className="text-xl font-semibold mb-2">
+                  <Link href={`/blog/${post.slug}`} className="hover:text-primary">
+                    {post.title}
+                  </Link>
+                </h3>
+                {post.excerpt && (
+                  <p className="text-muted-foreground mb-4 line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                )}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  {post.category && (
+                    <span className="bg-secondary px-2 py-1 rounded">
+                      {post.category.name}
+                    </span>
+                  )}
+                  <time>{post.published_at ? new Date(post.published_at).toLocaleDateString('zh-CN') : '未知日期'}</time>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-muted-foreground py-8">
+            暂无文章，请先添加一些内容。
+          </p>
+        )}
+        
+        {posts.length > 0 && (
+          <div className="text-center mt-8">
+            <Link 
+              href="/blog"
+              className="inline-flex items-center px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
+            >
+              查看全部文章
+            </Link>
+          </div>
+        )}
+      </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+
+      {/* Footer */}
+      <footer className="border-t py-8 mt-auto">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <p>&copy; 2025 甜宝塔的博客. All rights reserved.</p>
+          <p className="mt-2">分享技术见解、生活感悟和学习心得的个人空间</p>
+          <p className="mt-1 text-sm">苏ICP备2023047566号-2</p>
+        </div>
       </footer>
     </div>
   );
