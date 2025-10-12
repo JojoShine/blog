@@ -155,7 +155,7 @@ export default function CategoryPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:pt-8 pt-16">
         <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
@@ -169,7 +169,7 @@ export default function CategoryPage() {
           {/* Category Header */}
           <header className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold">{category.name}</h1>
+              <h1 className="text-3xl font-bold md:block hidden">{category.name}</h1>
               <span className="bg-secondary px-3 py-1 rounded-full text-sm">
                 {pagination.total || 0} 篇文章
               </span>

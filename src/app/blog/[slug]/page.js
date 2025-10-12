@@ -204,7 +204,7 @@ export default function PostPage() {
             </div>
 
             <div className="flex justify-between items-start gap-4 mb-4">
-              <h1 className="text-4xl font-bold flex-1">{post.title}</h1>
+              <h1 className="text-4xl font-bold flex-1 md:block hidden">{post.title}</h1>
               <ShareButton post={post} />
             </div>
 

@@ -44,11 +44,11 @@ export default function CategoriesPage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-4 py-8 pt-32">
+      <div className="container mx-auto px-4 py-8 md:pt-32 pt-40">
         <div className="max-w-4xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-3xl font-bold mb-4">文章分类</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold mb-4 md:block hidden">文章分类</h1>
+            <p className="text-muted-foreground md:block hidden">
               浏览所有文章分类，发现您感兴趣的内容
             </p>
           </header>

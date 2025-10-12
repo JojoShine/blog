@@ -72,10 +72,10 @@ function BlogContent() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-4 py-8 pt-32">
+      <div className="container mx-auto px-4 py-8 md:pt-32 pt-40">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="lg:w-1/4">
+          {/* Sidebar - Hidden on mobile */}
+          <aside className="lg:w-1/4 hidden lg:block">
             <div className="sticky top-8">
               <h3 className="text-xl font-semibold mb-4">文章分类</h3>
               <div className="space-y-2">
@@ -112,18 +112,18 @@ function BlogContent() {
           </aside>
 
           {/* Main Content */}
-          <main className="lg:w-3/4">
+          <main className="lg:w-3/4 w-full">
             <div className="mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold">
+                  <h1 className="text-3xl font-bold md:block hidden">
                     {categoryId
                       ? `${categories.find(c => c.id == categoryId)?.name || '分类'}文章`
                       : '博客文章'
                     }
                   </h1>
                   {posts.length > 0 && (
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-sm text-muted-foreground mt-2 md:block hidden">
                       共 {pagination.total || posts.length} 篇文章
                     </p>
                   )}

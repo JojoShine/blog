@@ -72,11 +72,11 @@ function SearchContent() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-4 py-8 pt-32">
+      <div className="container mx-auto px-4 py-8 md:pt-32 pt-40">
         <div className="max-w-4xl mx-auto">
           {/* Search Form */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-6">搜索文章</h1>
+            <h1 className="text-3xl font-bold mb-6 md:block hidden">搜索文章</h1>
             <form onSubmit={handleSearch} className="flex gap-4 items-center">
               <Input
                 type="text"
