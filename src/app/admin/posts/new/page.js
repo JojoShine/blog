@@ -4,7 +4,6 @@ import { apiFetch } from "@/lib/api";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -362,11 +361,9 @@ export default function NewPost() {
               <CardContent className="space-y-4">
                 {formData.featuredImage && (
                   <div className="space-y-2">
-                    <Image
+                    <img
                       src={formData.featuredImage}
                       alt="特色图片"
-                      width={400}
-                      height={128}
                       className="w-full h-32 object-cover rounded-lg"
                     />
                     <Button
