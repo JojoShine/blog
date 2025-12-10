@@ -7,7 +7,6 @@ import rehypeRaw from 'rehype-raw';
 import 'highlight.js/styles/github-dark.css';
 import CommentList from '@/components/CommentList';
 import Header from '@/components/Header';
-import ShareButton from '@/components/ShareButton';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
@@ -127,17 +126,17 @@ export default function PostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header - Fixed at top */}
       <Header />
 
       {/* Add padding to account for fixed header */}
       <div className="pt-24">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex gap-12 max-w-[1400px] mx-auto">
+          <div className="flex gap-12 max-w-[1400px] mx-auto items-start relative">
             {/* Table of Contents Sidebar - Left side */}
             <aside className="hidden lg:block w-56 flex-shrink-0 -ml-16">
-              <div className="sticky top-28">
+              <nav className="fixed top-28 w-56 max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-hide">
                 <div className="border rounded-lg p-4 bg-secondary/20">
                   <h3 className="font-semibold mb-4 flex items-center">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,13 +146,13 @@ export default function PostPage() {
                   </h3>
                   <TableOfContents content={post.content} />
                 </div>
-              </div>
+              </nav>
             </aside>
 
             {/* Main Content */}
             <div className="flex-1 max-w-full lg:max-w-4xl lg:mr-8">
           {/* Breadcrumb */}
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
+          <nav className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground mb-8">
             <Link href="/blog" className="hover:text-primary">首页</Link>
             <span>/</span>
             <Link href="/blog" className="hover:text-primary">文章</Link>
@@ -184,8 +183,8 @@ export default function PostPage() {
           )}
 
           {/* Article Header */}
-          <header className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
+          <header className="mb-8 md:mb-8">
+            <div className="flex items-center gap-2 mb-4 mt-8 md:mt-0">
               {post.category && (
                 <Link
                   href={`/blog?categoryId=${post.category.id}`}
@@ -203,9 +202,8 @@ export default function PostPage() {
               </time>
             </div>
 
-            <div className="flex justify-between items-start gap-4 mb-4">
-              <h1 className="text-4xl font-bold flex-1 md:block hidden">{post.title}</h1>
-              <ShareButton post={post} />
+            <div className="mb-4">
+              <h1 className="text-4xl font-bold">{post.title}</h1>
             </div>
 
             {post.excerpt && (
@@ -250,7 +248,7 @@ export default function PostPage() {
                     <code className="block">{children}</code>
                   ),
                 pre: ({ children }) => (
-                  <pre className="bg-secondary p-4 rounded-lg overflow-x-auto mb-4">
+                  <pre className="bg-secondary p-4 rounded-lg overflow-x-auto mb-4 max-w-full">
                     {children}
                   </pre>
                 ),
@@ -327,11 +325,33 @@ export default function PostPage() {
   );
 }
 
+// 移除代码块的辅助函数
+function removeCodeBlocks(content) {
+  // 1. 移除反引号代码块 ```...```
+  let result = content.replace(/```[\s\S]*?```/g, '');
+
+  // 2. 移除行内代码 `...`
+  result = result.replace(/`[^`\n]+`/g, '');
+
+  return result;
+}
+
+// 提取标题的通用函数
+function extractHeadings(content) {
+  // 先移除代码块，避免代码块中的 # 被识别为标题
+  const contentWithoutCode = removeCodeBlocks(content);
+
+  // 提取标题
+  const headings = contentWithoutCode.match(/^#{1,6}\s+.+$/gm) || [];
+
+  return headings;
+}
+
 // 获取标题在内容中的索引
 function getHeadingIndex(content, children) {
-  const headings = content.match(/^#{1,6}\s+.+$/gm) || [];
+  const headings = extractHeadings(content);
   const childrenText = Array.isArray(children) ? children.join('') : children;
-  
+
   for (let i = 0; i < headings.length; i++) {
     const headingText = headings[i].replace(/^#+\s+/, '');
     if (headingText === childrenText) {
@@ -343,14 +363,14 @@ function getHeadingIndex(content, children) {
 
 // 目录组件
 function TableOfContents({ content }) {
-  // 解析Markdown内容中的标题
-  const headings = content.match(/^#{1,6}\s+.+$/gm) || [];
-  
+  // 使用统一的标题提取函数
+  const headings = extractHeadings(content);
+
   const tocItems = headings.map((heading, index) => {
     const level = heading.match(/^#+/)[0].length;
     const text = heading.replace(/^#+\s+/, '');
     const id = `heading-${index}`;
-    
+
     return {
       level,
       text,

@@ -121,3 +121,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 隐藏滚动条但保留滚动功能 */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Light 模式下覆盖代码块样式，提高对比度 */
+/* 只在非 dark 模式下应用，dark 模式保持 github-dark.css 的原有样式 */
+:root:not(.dark) .prose pre {
+  background-color: #f6f8fa !important;
+  padding: 0 !important;
+}
+
+:root:not(.dark) .prose pre code {
+  color: #24292f !important;
+  background-color: #f6f8fa !important;
+  display: block;
+  padding: 1rem;
+}
+
+:root:not(.dark) .prose code {
+  background-color: rgba(175, 184, 193, 0.2);
+  color: #24292f;
+}

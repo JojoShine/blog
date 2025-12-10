@@ -9,7 +9,7 @@ export default function ShareModal({ post, onClose }) {
 
   // 构建完整的文章 URL
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const postUrl = `${baseUrl}/blog/${post.slug}`;
+  const postUrl = `${baseUrl}/${post.slug}`;
 
 
   const handleWeiboShare = () => {
